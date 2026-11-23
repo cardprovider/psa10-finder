@@ -1,0 +1,28 @@
+# One card per line. Include the card number so the search only matches that exact card.
+# Lines starting with # are ignored. Add "Japanese" to a line to search Japanese cards instead.
+Umbreon VMAX 215/203
+Rayquaza VMAX 218/203
+Sylveon VMAX 212/203
+Glaceon VMAX 209/203
+Leafeon VMAX 205/203
+Espeon VMAX 270/264
+Gengar VMAX 271/264
+Mew VMAX 269/264
+Charizard V 154/172
+Giratina V 186/196
+Lugia V 186/195
+Charizard ex 199/165
+Mew ex 193/165
+Blastoise ex 200/165
+Venusaur ex 198/165
+Charizard ex 223/197
+Iono 254/193
+Magikarp 203/193
+Greninja ex 214/167
+Pikachu ex 238/191
+Umbreon ex 161/131
+Eevee ex 167/131
+Sylveon ex 156/131
+Latias & Latios GX 170/181
+Mewtwo & Mew GX 222/236
+Pikachu with Grey Felt Hat SVP 085
