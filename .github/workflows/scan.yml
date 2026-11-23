@@ -1,0 +1,70 @@
+name: PSA 10 scan
+
+on:
+  schedule:
+    - cron: "17 7 * * *"   # every day at 07:17 UK time (winter) / 08:17 (summer)
+  workflow_dispatch:
+    inputs:
+      cards:
+        description: "Cards to search, separated by commas, e.g. Umbreon VMAX 215/203, Charizard ex 199/165. Leave blank to scan your whole watchlist (cards.txt)."
+        required: false
+        default: ""
+      min_score:
+        description: "Only show cards scoring at least (0 = show all)"
+        required: false
+        default: "0"
+      sell_fee:
+        description: "Your selling fee as a decimal (0 = private seller, 0.128 = business)"
+        required: false
+        default: "0"
+      postage:
+        description: "Your postage cost when you resell (GBP)"
+        required: false
+        default: "5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: psa10-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run scan
+        env:
+          EBAY_CLIENT_ID: ${{ secrets.EBAY_CLIENT_ID }}
+          EBAY_CLIENT_SECRET: ${{ secrets.EBAY_CLIENT_SECRET }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+          CARDS: ${{ github.event.inputs.cards }}
+          MIN_SCORE: ${{ github.event.inputs.min_score || '0' }}
+          SELL_FEE: ${{ github.event.inputs.sell_fee || '0' }}
+          POSTAGE: ${{ github.event.inputs.postage || '5' }}
+        run: |
+          RUN_LINK="https://github.com/${GITHUB_REPOSITORY}/actions/workflows/scan.yml"
+          COMMON=(--min-score "$MIN_SCORE" --sell-fee "$SELL_FEE" --postage "$POSTAGE" --run-link "$RUN_LINK")
+          if [ -n "$CARDS" ]; then
+            python psa10_finder.py --cards-csv "$CARDS" --out docs/search \
+              --title "Search: $CARDS" --other-link "Back to watchlist" index.html "${COMMON[@]}"
+          else
+            python psa10_finder.py --watchlist cards.txt --out docs/index \
+              --title "Watchlist scan" --other-link "Latest search" search.html "${COMMON[@]}"
+          fi
+
+      - name: Publish report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          git commit -m "Update PSA 10 report" || echo "No changes"
+          git pull --rebase
+          git push
